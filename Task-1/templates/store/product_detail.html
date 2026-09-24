@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — Harbor &amp; Oak{% endblock %}
+{% block content %}
+<p class="crumb"><a href="{% url 'product_list' %}">Shop</a> / {{ product.category }} / {{ product.name }}</p>
+
+<article class="detail">
+  <div class="detail-media" style="--accent: {{ product.accent }}">
+    {% if product.image_url %}
+      <img src="{{ product.image_url }}" alt="{{ product.name }}">
+    {% endif %}
+  </div>
+  <div class="detail-copy">
+    <p class="kicker">{{ product.category }}</p>
+    <h1>{{ product.name }}</h1>
+    <p class="price lg">${{ product.price }}</p>
+    <p>{{ product.description }}</p>
+    <p class="stock {% if not product.in_stock %}out{% endif %}">
+      {% if product.in_stock %}{{ product.stock }} available · ships in 2–4 days{% else %}Sold out{% endif %}
+    </p>
+    <form class="add-form stack" method="post" action="{% url 'add_to_cart' product.slug %}">
+      {% csrf_token %}
+      <label>
+        Quantity
+        <input class="field qty" type="number" name="quantity" min="1" max="{{ product.stock }}" value="1">
+      </label>
+      <button type="submit" {% if not product.in_stock %}disabled{% endif %}>Add to bag</button>
+    </form>
+    <ul class="specs">
+      <li><span>Material</span><span>Natural, unfinished honestly</span></li>
+      <li><span>Origin</span><span>Small-batch studio</span></li>
+      <li><span>Care</span><span>Wipe, oil, keep out of weather</span></li>
+    </ul>
+  </div>
+</article>
+
+{% if related %}
+  <div class="catalog-head">
+    <div>
+      <p class="kicker">Also in {{ product.category }}</p>
+      <h2>You might keep these too</h2>
+    </div>
+  </div>
+  <section class="grid">
+    {% for item in related %}
+      <article class="card">
+        <a class="card-media" href="{% url 'product_detail' item.slug %}">
+          {% if item.image_url %}<img src="{{ item.image_url }}" alt="{{ item.name }}" loading="lazy">{% endif %}
+          <span class="tag">{{ item.category }}</span>
+        </a>
+        <div class="card-body">
+          <div class="meta-row">
+            <h2><a href="{% url 'product_detail' item.slug %}">{{ item.name }}</a></h2>
+            <p class="price">${{ item.price }}</p>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Shop — Harbor &amp; Oak{% endblock %}
+{% block main_class %}{% endblock %}
+{% block before_main %}
+<section class="hero-band">
+  <div class="hero-copy">
+    <p class="kicker">Autumn collection</p>
+    <h1>Goods for a quieter room.</h1>
+    <p class="lede">A small, stubborn catalog: oak, linen, stoneware, and brass. Nothing seasonal, nothing loud.</p>
+    <div class="hero-actions">
+      <a class="btn" href="#catalog">Browse the shop</a>
+      <a class="btn btn-ghost" href="{% url 'product_detail' 'wool-runner' %}">See the runner</a>
+    </div>
+    <div class="stats">
+      <div><b>8</b><span>pieces in house</span></div>
+      <div><b>$22</b><span>starting price</span></div>
+      <div><b>4</b><span>materials, well chosen</span></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1400&q=80" alt="Sunlit living room with wood and linen">
+    <div class="hero-caption">
+      <strong>The living edit</strong>
+      <div class="muted">Wool, oak, and a long afternoon</div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block content %}
+<div class="wrap page-pad" id="catalog">
+  <div class="catalog-head">
+    <div>
+      <p class="kicker">The catalog</p>
+      <h2>In stock now</h2>
+    </div>
+    <div class="filters">
+      <a class="chip {% if not active_category %}on{% endif %}" href="{% url 'product_list' %}">All</a>
+      {% for cat in categories %}
+        <a class="chip {% if active_category == cat %}on{% endif %}" href="?c={{ cat }}">{{ cat }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <section class="grid">
+    {% for product in products %}
+      <article class="card">
+        <a class="card-media" href="{% url 'product_detail' product.slug %}" style="--accent: {{ product.accent }}">
+          {% if product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+          {% endif %}
+          <span class="tag">{{ product.category }}</span>
+        </a>
+        <div class="card-body">
+          <div class="meta-row">
+            <h2><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h2>
+            <p class="price">${{ product.price }}</p>
+          </div>
+          <p class="stock {% if not product.in_stock %}out{% endif %}">
+            {% if product.in_stock %}{{ product.stock }} in stock{% else %}Sold out{% endif %}
+          </p>
+          <form class="add-form" method="post" action="{% url 'add_to_cart' product.slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1">
+            <button class="btn-block" type="submit" {% if not product.in_stock %}disabled{% endif %}>Add to bag</button>
+          </form>
+        </div>
+      </article>
+    {% empty %}
+      <p class="empty">No products in this collection yet.</p>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

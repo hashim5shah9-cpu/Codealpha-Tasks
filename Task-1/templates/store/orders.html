@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Orders — Harbor &amp; Oak{% endblock %}
+{% block content %}
+<h1 class="page-title">Your orders</h1>
+{% for order in orders %}
+  <article class="order">
+    <header>
+      <strong>Order #{{ order.id }}</strong>
+      <span>{{ order.created_at|date:"M j, Y" }}</span>
+      <span class="pill">{{ order.get_status_display }}</span>
+      <span class="total">${{ order.total }}</span>
+    </header>
+    <ul>
+      {% for item in order.items.all %}
+        <li>{{ item.quantity }} × {{ item.product.name }} — ${{ item.line_total }}</li>
+      {% endfor %}
+    </ul>
+    <p class="muted">{{ order.address }}, {{ order.city }}</p>
+  </article>
+{% empty %}
+  <p class="empty">No orders yet. <a href="{% url 'product_list' %}">Start with the catalog</a>.</p>
+{% endfor %}
+{% endblock %}

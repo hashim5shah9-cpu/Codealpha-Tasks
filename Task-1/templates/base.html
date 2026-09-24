@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Harbor &amp; Oak{% endblock %}</title>
+  {% load static %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <div class="announce">Complimentary shipping on orders over $100 · Made to last</div>
+  <header class="site-header">
+    <div class="wrap bar">
+      <a class="logo" href="{% url 'product_list' %}">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 2.5c.4 4.8 3.2 8.6 7.2 11.2-3.1 1.1-5.5 3.6-6.6 6.8-.4-2.4-1.6-4.5-3.4-6.1C10.2 16.8 8 20.2 8 24.2 8 28 11.4 30.5 16 30.5s8-2.5 8-6.3c0-2.4-1-4.5-2.6-6 3.8-2.8 6.6-7 6.6-12.2C24.2 7.8 20.6 4.2 16 2.5Z"/></svg>
+        Harbor <span>&amp;</span> Oak
+      </a>
+      <nav class="nav">
+        <a href="{% url 'product_list' %}">Shop</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'orders' %}">Orders</a>
+          <form class="inline" method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="link-btn">Log out</button>
+          </form>
+          <span class="who">{{ user.username }}</span>
+        {% else %}
+          <a href="{% url 'login' %}">Log in</a>
+          <a class="accent-link" href="{% url 'register' %}">Join</a>
+        {% endif %}
+        <a class="cart-link" href="{% url 'cart' %}">
+          Bag <span id="cart-count" class="badge">{{ cart_count }}</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  {% if messages %}
+    <div class="wrap messages page-pad">
+      {% for message in messages %}
+        <p class="flash">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% block before_main %}{% endblock %}
+  <main class="{% block main_class %}wrap page-pad{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap foot-grid">
+      <div>
+        <h3>Harbor &amp; Oak</h3>
+        <p>A quiet catalog of lighting, kitchenware, and textiles. Objects chosen for how they age, not how they trend.</p>
+      </div>
+      <div>
+        <h3>Visit</h3>
+        <p>Shop online year-round.<br>Questions: hello@harborandoak.test</p>
+      </div>
+      <div>
+        <h3>Shop</h3>
+        <ul>
+          <li><a href="{% url 'product_list' %}?c=Lighting">Lighting</a></li>
+          <li><a href="{% url 'product_list' %}?c=Kitchen">Kitchen</a></li>
+          <li><a href="{% url 'product_list' %}?c=Textiles">Textiles</a></li>
+          <li><a href="{% url 'product_list' %}?c=Living">Living</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Account</h3>
+        <ul>
+          <li><a href="{% url 'orders' %}">Orders</a></li>
+          <li><a href="{% url 'cart' %}">Bag</a></li>
+          <li><a href="{% url 'login' %}">Log in</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap legal">© Harbor &amp; Oak. All goods sold as shown.</div>
+  </footer>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Checkout — Harbor &amp; Oak{% endblock %}
+{% block content %}
+<h1 class="page-title">Checkout</h1>
+<div class="split cart-layout">
+  <form method="post" class="form summary">
+    {% csrf_token %}
+    <p class="kicker">Delivery</p>
+    {{ form.as_p }}
+    <button type="submit">Place order</button>
+  </form>
+  <aside class="summary">
+    <p class="kicker">Order</p>
+    <h2>To pack</h2>
+    <ul>
+      {% for item in items %}
+        <li>{{ item.quantity }} × {{ item.product.name }} <span>${{ item.line_total }}</span></li>
+      {% endfor %}
+    </ul>
+    <p class="total">Total <strong>${{ total }}</strong></p>
+  </aside>
+</div>
+{% endblock %}

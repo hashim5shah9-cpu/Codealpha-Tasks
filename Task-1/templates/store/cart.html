@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Bag — Harbor &amp; Oak{% endblock %}
+{% block content %}
+<h1 class="page-title">Your bag</h1>
+
+{% if items %}
+  <div class="cart-layout">
+    <table class="lines">
+      <thead>
+        <tr><th>Piece</th><th>Qty</th><th>Price</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td>
+              <div class="item-cell">
+                {% if item.product.image_url %}
+                  <img class="thumb" src="{{ item.product.image_url }}" alt="">
+                {% endif %}
+                <div>
+                  <a href="{% url 'product_detail' item.product.slug %}">{{ item.product.name }}</a>
+                  <div class="muted">{{ item.product.category }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <form class="qty-row" method="post" action="{% url 'update_cart' item.id %}">
+                {% csrf_token %}
+                <button name="action" value="decrease" type="submit">−</button>
+                <span>{{ item.quantity }}</span>
+                <button name="action" value="increase" type="submit">+</button>
+              </form>
+            </td>
+            <td>${{ item.line_total }}</td>
+            <td>
+              <form method="post" action="{% url 'update_cart' item.id %}">
+                {% csrf_token %}
+                <button class="ghost" name="action" value="remove" type="submit">Remove</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <aside class="cart-aside">
+      <p class="kicker">Summary</p>
+      <p class="total">Total <strong>${{ total }}</strong></p>
+      <p class="muted">Shipping calculated at packing. Complimentary over $100.</p>
+      <p><a class="btn btn-block" href="{% url 'checkout' %}">Checkout</a></p>
+    </aside>
+  </div>
+{% else %}
+  <p class="empty">Your bag is empty. <a href="{% url 'product_list' %}">Browse the shop</a>.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Order placed — Harbor &amp; Oak{% endblock %}
+{% block content %}
+<section class="success-panel">
+  <p class="kicker">Order #{{ order.id }}</p>
+  <h1>Paid and on the books.</h1>
+  <p class="lede">We’ll pack {{ order.full_name }}’s order for {{ order.city }}. Total ${{ order.total }}.</p>
+  <p><a class="btn" href="{% url 'orders' %}">View orders</a></p>
+</section>
+{% endblock %}

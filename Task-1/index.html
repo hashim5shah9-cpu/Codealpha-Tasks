@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harbor &amp; Oak</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+  <div class="announce">Complimentary shipping on orders over $100 · Made to last</div>
+  <header class="site-header">
+    <div class="wrap bar">
+      <a class="logo" href="#/">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 2.5c.4 4.8 3.2 8.6 7.2 11.2-3.1 1.1-5.5 3.6-6.6 6.8-.4-2.4-1.6-4.5-3.4-6.1C10.2 16.8 8 20.2 8 24.2 8 28 11.4 30.5 16 30.5s8-2.5 8-6.3c0-2.4-1-4.5-2.6-6 3.8-2.8 6.6-7 6.6-12.2C24.2 7.8 20.6 4.2 16 2.5Z"/></svg>
+        Harbor <span>&amp;</span> Oak
+      </a>
+      <nav class="nav" id="nav"></nav>
+    </div>
+  </header>
+  <div id="app"></div>
+  <footer class="site-footer">
+    <div class="wrap foot-grid">
+      <div>
+        <h3>Harbor &amp; Oak</h3>
+        <p>A quiet catalog of lighting, kitchenware, and textiles. Open this file in a browser — bag and accounts save on this device.</p>
+      </div>
+      <div>
+        <h3>Visit</h3>
+        <p>Studio hours by appointment.<br>hello@harborandoak.test</p>
+      </div>
+      <div>
+        <h3>Shop</h3>
+        <ul>
+          <li><a href="#/" data-filter="Lighting">Lighting</a></li>
+          <li><a href="#/" data-filter="Kitchen">Kitchen</a></li>
+          <li><a href="#/" data-filter="Textiles">Textiles</a></li>
+          <li><a href="#/" data-filter="Living">Living</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Account</h3>
+        <ul>
+          <li><a href="#/orders">Orders</a></li>
+          <li><a href="#/cart">Bag</a></li>
+          <li><a href="#/login">Log in</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap legal">© Harbor &amp; Oak. Static preview — Django lives at port 8000.</div>
+  </footer>
+  <script>
+    const PRODUCTS = [
+      { name: "Oak Desk Lamp", slug: "oak-desk-lamp", description: "A solid oak lamp with a linen shade. Warm, directional light for late work without glare.", price: 68, stock: 18, image_url: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1200&q=80", accent: "#8b5a2b", category: "Lighting" },
+      { name: "Linen Throw", slug: "linen-throw", description: "Stone-washed European linen, 130 x 170 cm. Softens with every wash and never looks fussed.", price: 54, stock: 24, image_url: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=1200&q=80", accent: "#a67c52", category: "Textiles" },
+      { name: "Ceramic Pour-Over", slug: "ceramic-pour-over", description: "Hand-thrown dripper with a spiral rib. Holds heat and pours a clean, even bed.", price: 32, stock: 30, image_url: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80", accent: "#9c4a2a", category: "Kitchen" },
+      { name: "Walnut Cutting Board", slug: "walnut-cutting-board", description: "End-grain American walnut with a juice groove. Thick enough to last a decade of weeknights.", price: 86, stock: 12, image_url: "https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?auto=format&fit=crop&w=1200&q=80", accent: "#5c4033", category: "Kitchen" },
+      { name: "Wool Runner", slug: "wool-runner", description: "Hand-loomed wool in a muted stripe. Sized for a hallway or the foot of a bed.", price: 140, stock: 8, image_url: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80", accent: "#6b4f3b", category: "Living" },
+      { name: "Brass Candle Holders", slug: "brass-candle-holders", description: "A pair of turned brass holders. They darken honestly with use; no lacquer, no fuss.", price: 42, stock: 20, image_url: "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1200&q=80", accent: "#b08d57", category: "Lighting" },
+      { name: "Stoneware Mug", slug: "stoneware-mug", description: "Speckled clay, 350 ml, with a handle that actually fits four fingers. Dishwasher safe.", price: 22, stock: 40, image_url: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=1200&q=80", accent: "#7a6a58", category: "Kitchen" },
+      { name: "Canvas Tote", slug: "canvas-tote", description: "Heavy 16-oz canvas with a leather grip. Deep enough for a market run or a laptop.", price: 38, stock: 22, image_url: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1200&q=80", accent: "#3d4f3a", category: "Living" }
+    ];
+    const CATS = ["All", ...new Set(PRODUCTS.map((p) => p.category))];
+
+    const store = {
+      load(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+        catch { return fallback; }
+      },
+      save(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+    };
+
+    const state = {
+      user: store.load("hoa_user", null),
+      users: store.load("hoa_users", []),
+      cart: store.load("hoa_cart", {}),
+      orders: store.load("hoa_orders", []),
+      filter: "All"
+    };
+
+    function persist() {
+      store.save("hoa_user", state.user);
+      store.save("hoa_users", state.users);
+      store.save("hoa_cart", state.cart);
+      store.save("hoa_orders", state.orders);
+    }
+
+    const money = (n) => "$" + Number(n).toFixed(2);
+    const product = (slug) => PRODUCTS.find((p) => p.slug === slug);
+    const cartCount = () => Object.values(state.cart).reduce((a, n) => a + n, 0);
+    const cartLines = () => Object.entries(state.cart).map(([slug, qty]) => {
+      const p = product(slug);
+      return p ? { ...p, qty, line: p.price * qty } : null;
+    }).filter(Boolean);
+    const cartTotal = () => cartLines().reduce((a, l) => a + l.line, 0);
+
+    function toast(text) {
+      document.querySelector(".toast")?.remove();
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.textContent = text;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1800);
+    }
+
+    function addToCart(slug, qty = 1) {
+      const p = product(slug);
+      if (!p) return;
+      state.cart[slug] = Math.min((state.cart[slug] || 0) + qty, p.stock);
+      persist();
+      render();
+      toast("Added to bag");
+    }
+
+    function setQty(slug, qty) {
+      if (qty < 1) delete state.cart[slug];
+      else state.cart[slug] = qty;
+      persist();
+      render();
+    }
+
+    function route() {
+      const hash = location.hash.replace(/^#/, "") || "/";
+      const parts = hash.split("/").filter(Boolean);
+      if (!parts.length) return { name: "shop" };
+      if (parts[0] === "product" && parts[1]) return { name: "product", slug: parts[1] };
+      if (parts[0] === "cart") return { name: "cart" };
+      if (parts[0] === "checkout") return { name: "checkout" };
+      if (parts[0] === "orders") return { name: "orders" };
+      if (parts[0] === "login") return { name: "login" };
+      if (parts[0] === "register") return { name: "register" };
+      if (parts[0] === "success") return { name: "success", id: parts[1] };
+      return { name: "shop" };
+    }
+
+    function navHtml() {
+      const n = cartCount();
+      if (state.user) {
+        return `
+          <a href="#/">Shop</a>
+          <a href="#/orders">Orders</a>
+          <button class="link-btn" id="logout">Log out</button>
+          <span class="who">${state.user.username}</span>
+          <a class="cart-link" href="#/cart">Bag <span class="badge">${n}</span></a>
+        `;
+      }
+      return `
+        <a href="#/">Shop</a>
+        <a href="#/login">Log in</a>
+        <a class="accent-link" href="#/register">Join</a>
+        <a class="cart-link" href="#/cart">Bag <span class="badge">${n}</span></a>
+      `;
+    }
+
+    function card(p) {
+      return `
+        <article class="card">
+          <a class="card-media" href="#/product/${p.slug}" style="--accent:${p.accent}">
+            <img src="${p.image_url}" alt="${p.name}">
+            <span class="tag">${p.category}</span>
+          </a>
+          <div class="card-body">
+            <div class="meta-row">
+              <h2><a href="#/product/${p.slug}">${p.name}</a></h2>
+              <p class="price">${money(p.price)}</p>
+            </div>
+            <p class="stock">${p.stock} in stock</p>
+            <button class="btn-block" data-add="${p.slug}">Add to bag</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function viewShop() {
+      const list = state.filter === "All" ? PRODUCTS : PRODUCTS.filter((p) => p.category === state.filter);
+      const chips = CATS.map((c) => `<button class="chip ${state.filter === c ? "on" : ""}" data-filter="${c}">${c}</button>`).join("");
+      return `
+        <section class="hero-band">
+          <div class="hero-copy">
+            <p class="kicker">Autumn collection</p>
+            <h1>Goods for a quieter room.</h1>
+            <p class="lede">A small, stubborn catalog: oak, linen, stoneware, and brass. Nothing seasonal, nothing loud.</p>
+            <div class="hero-actions">
+              <a class="btn" href="#catalog">Browse the shop</a>
+              <a class="btn btn-ghost" href="#/product/wool-runner">See the runner</a>
+            </div>
+            <div class="stats">
+              <div><b>8</b><span>pieces in house</span></div>
+              <div><b>$22</b><span>starting price</span></div>
+              <div><b>4</b><span>materials, well chosen</span></div>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1400&q=80" alt="Sunlit living room">
+            <div class="hero-caption"><strong>The living edit</strong><div class="muted">Wool, oak, and a long afternoon</div></div>
+          </div>
+        </section>
+        <div class="wrap page-pad" id="catalog">
+          <div class="catalog-head">
+            <div><p class="kicker">The catalog</p><h2>In stock now</h2></div>
+            <div class="filters">${chips}</div>
+          </div>
+          <section class="grid">${list.map(card).join("")}</section>
+        </div>
+      `;
+    }
+
+    function viewProduct(slug) {
+      const p = product(slug);
+      if (!p) return `<main class="wrap page-pad"><p class="empty">Product not found. <a href="#/">Back to shop</a>.</p></main>`;
+      const related = PRODUCTS.filter((x) => x.category === p.category && x.slug !== p.slug).slice(0, 3);
+      return `
+        <main class="wrap page-pad">
+          <p class="crumb"><a href="#/">Shop</a> / ${p.category} / ${p.name}</p>
+          <article class="detail">
+            <div class="detail-media" style="--accent:${p.accent}"><img src="${p.image_url}" alt="${p.name}"></div>
+            <div class="detail-copy">
+              <p class="kicker">${p.category}</p>
+              <h1>${p.name}</h1>
+              <p class="price lg">${money(p.price)}</p>
+              <p>${p.description}</p>
+              <p class="stock">${p.stock} available · ships in 2–4 days</p>
+              <form class="add-form stack" id="detail-add">
+                <label>Quantity <input class="field qty" type="number" name="qty" min="1" max="${p.stock}" value="1"></label>
+                <button type="submit">Add to bag</button>
+              </form>
+              <ul class="specs">
+                <li><span>Material</span><span>Natural, unfinished honestly</span></li>
+                <li><span>Origin</span><span>Small-batch studio</span></li>
+                <li><span>Care</span><span>Wipe, oil, keep out of weather</span></li>
+              </ul>
+            </div>
+          </article>
+          ${related.length ? `<div class="catalog-head"><div><p class="kicker">Also in ${p.category}</p><h2>You might keep these too</h2></div></div><section class="grid">${related.map(card).join("")}</section>` : ""}
+        </main>
+      `;
+    }
+
+    function viewCart() {
+      const lines = cartLines();
+      if (!lines.length) {
+        return `<main class="wrap page-pad"><h1 class="page-title">Your bag</h1><p class="empty">Your bag is empty. <a href="#/">Browse the shop</a>.</p></main>`;
+      }
+      const rows = lines.map((l) => `
+        <tr>
+          <td>
+            <div class="item-cell">
+              <img class="thumb" src="${l.image_url}" alt="">
+              <div><a href="#/product/${l.slug}">${l.name}</a><div class="muted">${l.category}</div></div>
+            </div>
+          </td>
+          <td>
+            <div class="qty-row">
+              <button data-qty="${l.slug}" data-n="${l.qty - 1}">−</button>
+              <span>${l.qty}</span>
+              <button data-qty="${l.slug}" data-n="${Math.min(l.qty + 1, l.stock)}">+</button>
+            </div>
+          </td>
+          <td>${money(l.line)}</td>
+          <td><button class="ghost" data-qty="${l.slug}" data-n="0">Remove</button></td>
+        </tr>
+      `).join("");
+      return `
+        <main class="wrap page-pad">
+          <h1 class="page-title">Your bag</h1>
+          <div class="cart-layout">
+            <table class="lines">
+              <thead><tr><th>Piece</th><th>Qty</th><th>Price</th><th></th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+            <aside class="cart-aside">
+              <p class="kicker">Summary</p>
+              <p class="total">Total <strong>${money(cartTotal())}</strong></p>
+              <p class="muted">Shipping calculated at packing. Complimentary over $100.</p>
+              <p><a class="btn btn-block" href="#/checkout">Checkout</a></p>
+            </aside>
+          </div>
+        </main>
+      `;
+    }
+
+    function viewCheckout() {
+      if (!cartLines().length) return `<main class="wrap page-pad"><p class="empty">Nothing to check out. <a href="#/">Shop</a></p></main>`;
+      if (!state.user) {
+        return `<main class="wrap page-pad"><h1 class="page-title">Checkout</h1><p class="empty">Please <a href="#/login">log in</a> or <a href="#/register">join</a> to place an order.</p></main>`;
+      }
+      const items = cartLines().map((l) => `<li>${l.qty} × ${l.name} <span>${money(l.line)}</span></li>`).join("");
+      return `
+        <main class="wrap page-pad">
+          <h1 class="page-title">Checkout</h1>
+          <div class="cart-layout">
+            <form class="form summary" id="checkout-form">
+              <p class="kicker">Delivery</p>
+              <p><label>Full name <input class="field" name="full_name" required value="${state.user.username}"></label></p>
+              <p><label>Email <input class="field" type="email" name="email" required value="${state.user.email || ""}"></label></p>
+              <p><label>Address <input class="field" name="address" required></label></p>
+              <p><label>City <input class="field" name="city" required></label></p>
+              <button type="submit">Place order</button>
+            </form>
+            <aside class="summary">
+              <p class="kicker">Order</p>
+              <h2>To pack</h2>
+              <ul>${items}</ul>
+              <p class="total">Total <strong>${money(cartTotal())}</strong></p>
+            </aside>
+          </div>
+        </main>
+      `;
+    }
+
+    function viewAuth(mode) {
+      const title = mode === "login" ? "Welcome back." : "Join the house.";
+      const extra = mode === "register"
+        ? `<p><label>Email <input class="field" type="email" name="email" required></label></p>` : "";
+      const alt = mode === "login"
+        ? `New here? <a class="accent-link" href="#/register">Create an account</a>.`
+        : `Already have one? <a class="accent-link" href="#/login">Log in</a>.`;
+      return `
+        <section class="auth-layout">
+          <div class="auth">
+            <p class="kicker">${mode === "login" ? "Account" : "Membership"}</p>
+            <h1>${title}</h1>
+            <p id="auth-error" class="errorlist"></p>
+            <form class="form" id="auth-form" data-mode="${mode}">
+              <p><label>Username <input class="field" name="username" required></label></p>
+              ${extra}
+              <p><label>Password <input class="field" type="password" name="password" required></label></p>
+              <button type="submit">${mode === "login" ? "Log in" : "Create account"}</button>
+            </form>
+            <p>${alt}</p>
+          </div>
+          <div class="auth-visual" role="img" aria-label="Interior"></div>
+        </section>
+      `;
+    }
+
+    function viewOrders() {
+      if (!state.user) return `<main class="wrap page-pad"><p class="empty"><a href="#/login">Log in</a> to see orders.</p></main>`;
+      const mine = state.orders.filter((o) => o.user === state.user.username);
+      if (!mine.length) return `<main class="wrap page-pad"><h1 class="page-title">Your orders</h1><p class="empty">No orders yet.</p></main>`;
+      return `<main class="wrap page-pad"><h1 class="page-title">Your orders</h1>` + mine.map((o) => `
+        <article class="order">
+          <header>
+            <strong>Order #${o.id}</strong>
+            <span>${o.date}</span>
+            <span class="pill">${o.status}</span>
+            <span class="total">${money(o.total)}</span>
+          </header>
+          <ul>${o.items.map((i) => `<li>${i.qty} × ${i.name} — ${money(i.line)}</li>`).join("")}</ul>
+          <p class="muted">${o.address}, ${o.city}</p>
+        </article>
+      `).join("") + `</main>`;
+    }
+
+    function viewSuccess(id) {
+      const o = state.orders.find((x) => String(x.id) === String(id));
+      if (!o) return `<main class="wrap page-pad"><p class="empty">Order not found.</p></main>`;
+      return `
+        <main class="wrap">
+          <section class="success-panel">
+            <p class="kicker">Order #${o.id}</p>
+            <h1>Paid and on the books.</h1>
+            <p class="lede">We'll pack ${o.full_name}'s order for ${o.city}. Total ${money(o.total)}.</p>
+            <p><a class="btn" href="#/orders">View orders</a></p>
+          </section>
+        </main>
+      `;
+    }
+
+    function render() {
+      const r = route();
+      document.getElementById("nav").innerHTML = navHtml();
+      const app = document.getElementById("app");
+      if (r.name === "shop") app.innerHTML = viewShop();
+      else if (r.name === "product") app.innerHTML = viewProduct(r.slug);
+      else if (r.name === "cart") app.innerHTML = viewCart();
+      else if (r.name === "checkout") app.innerHTML = viewCheckout();
+      else if (r.name === "login") app.innerHTML = viewAuth("login");
+      else if (r.name === "register") app.innerHTML = viewAuth("register");
+      else if (r.name === "orders") app.innerHTML = viewOrders();
+      else if (r.name === "success") app.innerHTML = viewSuccess(r.id);
+      bind();
+    }
+
+    function bind() {
+      document.getElementById("logout")?.addEventListener("click", () => {
+        state.user = null;
+        persist();
+        location.hash = "#/";
+        render();
+      });
+      document.querySelectorAll("[data-filter]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          state.filter = el.dataset.filter;
+          location.hash = "#/";
+          render();
+          document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+        });
+      });
+      document.querySelectorAll("[data-add]").forEach((btn) => {
+        btn.addEventListener("click", () => addToCart(btn.dataset.add, 1));
+      });
+      document.getElementById("detail-add")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        addToCart(route().slug, Number(new FormData(e.target).get("qty") || 1));
+      });
+      document.querySelectorAll("[data-qty]").forEach((btn) => {
+        btn.addEventListener("click", () => setQty(btn.dataset.qty, Number(btn.dataset.n)));
+      });
+      document.getElementById("auth-form")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        const err = document.getElementById("auth-error");
+        if (e.target.dataset.mode === "register") {
+          if (state.users.some((u) => u.username === data.username)) {
+            err.textContent = "That username is taken.";
+            return;
+          }
+          const user = { username: data.username, email: data.email, password: data.password };
+          state.users.push(user);
+          state.user = { username: user.username, email: user.email };
+        } else {
+          const found = state.users.find((u) => u.username === data.username && u.password === data.password);
+          if (!found) {
+            err.textContent = "Wrong username or password.";
+            return;
+          }
+          state.user = { username: found.username, email: found.email };
+        }
+        persist();
+        location.hash = "#/";
+        render();
+      });
+      document.getElementById("checkout-form")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        const order = {
+          id: state.orders.length + 1,
+          user: state.user.username,
+          full_name: data.full_name,
+          email: data.email,
+          address: data.address,
+          city: data.city,
+          status: "Paid",
+          date: new Date().toLocaleDateString(),
+          items: cartLines().map((l) => ({ name: l.name, qty: l.qty, line: l.line })),
+          total: cartTotal()
+        };
+        state.orders.unshift(order);
+        state.cart = {};
+        persist();
+        location.hash = "#/success/" + order.id;
+        render();
+      });
+    }
+
+    window.addEventListener("hashchange", render);
+    render();
+  </script>
+</body>
+</html>

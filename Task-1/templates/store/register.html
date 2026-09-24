@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Register — Harbor &amp; Oak{% endblock %}
+{% block main_class %}{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth">
+    <p class="kicker">Membership</p>
+    <h1>Join the house.</h1>
+    <p class="lede">Save a bag, track orders, and check out in one pass.</p>
+    <form method="post" class="form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Create account</button>
+    </form>
+    <p>Already have one? <a class="accent-link" href="{% url 'login' %}">Log in</a>.</p>
+  </div>
+  <div class="auth-visual" role="img" aria-label="Sunlit interior"></div>
+</section>
+{% endblock %}
