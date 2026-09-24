@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keel — project boards</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,640&family=Outfit:wght@360;480;580&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="auth">
+        <section class="auth-panel">
+          <p class="mark">Keel</p>
+          <h1>Keep the work in one place, and the conversation on the card.</h1>
+          <ul>
+            <li>Group projects with a shared board</li>
+            <li>Assign cards, set a due date, drag them across</li>
+            <li>Comment where the work actually lives</li>
+          </ul>
+          <div class="auth-sample">
+            <article><span class="pri high">High</span><strong>Write the launch announcement</strong><em>Amira · 2 comments</em></article>
+            <article><span class="pri urgent">Urgent</span><strong>Review pricing copy</strong><em>Hashim · due tomorrow</em></article>
+          </div>
+        </section>
+        <section class="auth-form">
+          <form id="file-auth">
+            <h2>Sign in</h2>
+            <p class="lede">Use a demo account or one you registered.</p>
+            <label>Email<input type="email" value="hashim@keel.app" readonly /></label>
+            <label>Password<input type="password" value="keel123" readonly /></label>
+            <p class="hint">Demo: <code>hashim@keel.app</code> / <code>keel123</code><br />Also <code>amira@keel.app</code> and <code>leo@keel.app</code></p>
+          </form>
+        </section>
+      </div>
+    </div>
+    <script>
+      if (location.protocol === "file:") location.replace("http://localhost:4000");
+    </script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
