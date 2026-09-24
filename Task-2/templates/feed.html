@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}{{ section_title }} – SocialMedia{% endblock %}
+{% block body_class %}page-{{ active_page }}{% endblock %}
+
+{% block content %}
+{% if active_page == 'explore' %}
+<header class="page-header page-header--reel">
+    <h1>For You</h1>
+    <p class="page-sub">Scroll the latest from everyone.</p>
+</header>
+{% endif %}
+
+<div class="layout layout--feed">
+    <div class="feed-column">
+        {% if suggested_users and active_page == 'feed' %}
+        <div class="stories">
+            {% for u in suggested_users %}
+            <a href="{% url 'profile' username=u.username %}" class="story">
+                <span class="ring">
+                    {% if u.profile.avatar %}
+                        <img class="avatar avatar--md" src="{{ u.profile.avatar.url }}" alt="">
+                    {% else %}
+                        <span class="avatar avatar--md avatar--placeholder">{{ u.username|first|upper }}</span>
+                    {% endif %}
+                </span>
+                <span class="story-name">{{ u.username }}</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if request.user.is_authenticated and active_page == 'feed' %}
+        <div class="composer card">
+            <form method="post" action="{% url 'post_create' %}" enctype="multipart/form-data" data-post-form>
+                {% csrf_token %}
+                <div class="composer-header">
+                    {% if request.user.profile.avatar %}
+                        <img class="avatar avatar--md" src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}">
+                    {% else %}
+                        <span class="avatar avatar--md avatar--placeholder">{{ request.user.username|first|upper }}</span>
+                    {% endif %}
+                    <div class="composer-input-wrap">
+                        {{ post_form.content }}
+                    </div>
+                </div>
+                <div class="composer-footer">
+                    <label class="file-btn" for="id_image">
+                        <span>📷</span> Add image
+                    </label>
+                    {{ post_form.image }}
+                    <button type="submit" class="btn btn--primary">Post</button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if people %}
+        <div class="card people-results">
+            <h3 class="sidebar-title">People</h3>
+            <ul class="suggest-list">
+                {% for u in people %}
+                <li class="suggest-item">
+                    <a href="{% url 'profile' username=u.username %}" class="suggest-user">
+                        {% if u.profile.avatar %}
+                            <img class="avatar avatar--sm" src="{{ u.profile.avatar.url }}" alt="{{ u.username }}">
+                        {% else %}
+                            <span class="avatar avatar--sm avatar--placeholder">{{ u.username|first|upper }}</span>
+                        {% endif %}
+                        <span class="suggest-name">{{ u.username }}</span>
+                    </a>
+                    <form method="post" action="{% url 'follow_toggle' u.username %}" class="follow-form" data-follow-form>
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="btn btn--small btn--{% if u.is_followed %}outline{% else %}primary{% endif %}"
+                                data-follow-btn>
+                            {% if u.is_followed %}Following{% else %}Follow{% endif %}
+                        </button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="posts-list">
+            {% if posts %}
+                {% for post in posts %}
+                    {% if active_page == 'explore' %}
+                        {% include 'includes/_post.html' with post=post mode='reel' %}
+                    {% else %}
+                        {% include 'includes/_post.html' with post=post mode='feed' %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="empty-state card">
+                    <div class="empty-icon">📭</div>
+                    <h3>Nothing here yet</h3>
+                    {% if active_page == 'feed' %}
+                        <p>Follow some people to see their posts in your feed.</p>
+                        <a href="{% url 'explore' %}" class="btn btn--primary">Explore</a>
+                    {% else %}
+                        <p>Be the first to share something!</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <aside class="sidebar">
+        {% if suggested_users %}
+        <div class="card">
+            <h3 class="sidebar-title">Suggested to follow</h3>
+            <ul class="suggest-list">
+                {% for u in suggested_users %}
+                <li class="suggest-item">
+                    <a href="{% url 'profile' username=u.username %}" class="suggest-user">
+                        {% if u.profile.avatar %}
+                            <img class="avatar avatar--sm" src="{{ u.profile.avatar.url }}" alt="{{ u.username }}">
+                        {% else %}
+                            <span class="avatar avatar--sm avatar--placeholder">{{ u.username|first|upper }}</span>
+                        {% endif %}
+                        <span class="suggest-name">{{ u.username }}</span>
+                    </a>
+                    <form method="post" action="{% url 'follow_toggle' u.username %}" class="follow-form" data-follow-form>
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn--small btn--primary" data-follow-btn>Follow</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="card stats-card">
+            <h3 class="sidebar-title">Your stats</h3>
+            <div class="mini-stats">
+                <a href="{% url 'following' request.user.username %}" class="mini-stat">
+                    <strong>{{ request.user.following.count }}</strong><span>Following</span>
+                </a>
+                <a href="{% url 'followers' request.user.username %}" class="mini-stat">
+                    <strong>{{ request.user.followers.count }}</strong><span>Followers</span>
+                </a>
+                <a href="{% url 'profile' request.user.username %}" class="mini-stat">
+                    <strong>{{ request.user.posts.count }}</strong><span>Posts</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}

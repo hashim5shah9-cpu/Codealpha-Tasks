@@ -1,0 +1,108 @@
+<article class="post-card {% if mode == 'reel' %}post-card--reel{% endif %}" data-post-id="{{ post.pk }}">
+    {% if mode == 'reel' %}
+    <a class="reel-media" href="{% url 'post_detail' post.pk %}">
+        {% if post.image %}
+            <img src="{{ post.image.url }}" alt="">
+        {% else %}
+            <span class="reel-copy">{{ post.content }}</span>
+        {% endif %}
+    </a>
+    <div class="reel-shade"></div>
+    <div class="reel-meta">
+        <a href="{% url 'profile' username=post.author.username %}" class="reel-author">@{{ post.author.username }}</a>
+        {% if post.image %}
+            <p class="reel-caption">{{ post.content|truncatechars:140 }}</p>
+        {% endif %}
+    </div>
+    <div class="reel-rail">
+        <a href="{% url 'profile' username=post.author.username %}" class="reel-avatar">
+            {% if post.author.profile.avatar %}
+                <img class="avatar avatar--md" src="{{ post.author.profile.avatar.url }}" alt="">
+            {% else %}
+                <span class="avatar avatar--md avatar--placeholder">{{ post.author.username|first|upper }}</span>
+            {% endif %}
+        </a>
+        <form method="post" action="{% url 'like_toggle' post.pk %}" class="like-form" data-like-form>
+            {% csrf_token %}
+            <button type="submit" class="reel-action like-btn {% if post.user_liked %}liked{% endif %}"
+                    data-like-btn aria-pressed="{% if post.user_liked %}true{% else %}false{% endif %}" aria-label="Like">
+                <span class="heart{% if post.user_liked %} filled{% endif %}">♥</span>
+            </button>
+        </form>
+        <strong class="reel-count" data-like-count>{{ post.like_count|default:post.likes_count }}</strong>
+        <a href="{% url 'post_detail' post.pk %}#comments" class="reel-action" aria-label="Comments">💬</a>
+        <strong class="reel-count" data-comment-count>{{ post.comment_count|default:post.comments_count }}</strong>
+    </div>
+    {% else %}
+    <div class="post-header">
+        <a href="{% url 'profile' username=post.author.username %}" class="post-author">
+            <span class="ring">
+                {% if post.author.profile.avatar %}
+                    <img class="avatar avatar--md" src="{{ post.author.profile.avatar.url }}" alt="">
+                {% else %}
+                    <span class="avatar avatar--md avatar--placeholder">{{ post.author.username|first|upper }}</span>
+                {% endif %}
+            </span>
+            <div class="post-author-name">
+                <strong>{{ post.author.username }}</strong>
+                <span class="post-meta" title="{{ post.created_at|date:'F j, Y g:i A' }}">{{ post.created_at|timesince }} ago</span>
+            </div>
+        </a>
+        {% if post.author == request.user %}
+        <div class="post-actions-menu">
+            <button type="button" class="icon-btn" data-menu-toggle aria-label="Post options">•••</button>
+            <div class="menu-dropdown">
+                <button type="button" class="menu-item" data-edit-post>Edit</button>
+                <form method="post" action="{% url 'post_delete' post.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button type="submit" class="menu-item menu-item--danger">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="post-visual">
+        {% if post.image %}
+            <img class="post-image" src="{{ post.image.url }}" alt="">
+        {% else %}
+            <div class="post-canvas"><p>{{ post.content }}</p></div>
+        {% endif %}
+    </div>
+
+    <div class="post-footer">
+        <div class="post-actions">
+            <form method="post" action="{% url 'like_toggle' post.pk %}" class="like-form" data-like-form>
+                {% csrf_token %}
+                <button type="submit" class="action-btn like-btn {% if post.user_liked %}liked{% endif %}"
+                        data-like-btn aria-pressed="{% if post.user_liked %}true{% else %}false{% endif %}" aria-label="Like">
+                    <span class="heart{% if post.user_liked %} filled{% endif %}">♥</span>
+                </button>
+            </form>
+            {% if request.resolver_match.url_name == 'post_detail' %}
+            <button type="button" class="action-btn" data-scroll-to-comments aria-label="Comments">💬</button>
+            {% else %}
+            <a href="{% url 'post_detail' post.pk %}#comments" class="action-btn" aria-label="Comments">💬</a>
+            {% endif %}
+        </div>
+        <p class="ig-likes"><span data-like-count>{{ post.like_count|default:post.likes_count }}</span> likes</p>
+        {% if post.image %}
+        <p class="ig-caption"><a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a> <span data-content>{{ post.content|linebreaksbr }}</span></p>
+        {% else %}
+        <p class="ig-caption hidden-caption" data-content>{{ post.content }}</p>
+        {% endif %}
+        <form class="post-edit-form hidden" method="post" action="{% url 'post_edit_inline' post.pk %}" data-edit-form>
+            {% csrf_token %}
+            <textarea name="content" rows="3">{{ post.content }}</textarea>
+            <div class="edit-actions">
+                <button type="button" class="btn btn--ghost" data-cancel-edit>Cancel</button>
+                <button type="submit" class="btn btn--small btn--primary">Save</button>
+            </div>
+        </form>
+        <a href="{% url 'post_detail' post.pk %}#comments" class="view-comments">
+            View all <span data-comment-count>{{ post.comment_count|default:post.comments_count }}</span> comments
+        </a>
+    </div>
+    {% endif %}
+</article>

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Post by {{ post.author.username }} – SocialMedia{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <a href="{{ request.META.HTTP_REFERER|default:'/' }}" class="btn btn--ghost">← Back</a>
+</header>
+
+<div class="layout layout--detail">
+    <div class="feed-column">
+        {% include 'includes/_post.html' with post=post %}
+
+        <section class="post-comments card" id="comments">
+            <h3 class="comments-title">
+                Comments <span class="comment-count-badge" data-comments-total>{{ comments|length }}</span>
+            </h3>
+
+            {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'comment_create' post.pk %}" class="comment-form" data-comment-form>
+                {% csrf_token %}
+                {{ comment_form.content }}
+                <div class="comment-form-footer">
+                    <button type="submit" class="btn btn--small btn--primary">Comment</button>
+                </div>
+            </form>
+            {% endif %}
+
+            <ul class="comment-list" data-comment-list>
+                {% for comment in comments %}
+                <li class="comment" data-comment-id="{{ comment.pk }}">
+                    <a href="{% url 'profile' username=comment.author.username %}" class="comment-avatar">
+                        {% if comment.author.profile.avatar %}
+                            <img class="avatar avatar--sm" src="{{ comment.author.profile.avatar.url }}" alt="{{ comment.author.username }}">
+                        {% else %}
+                            <span class="avatar avatar--sm avatar--placeholder">{{ comment.author.username|first|upper }}</span>
+                        {% endif %}
+                    </a>
+                    <div class="comment-body">
+                        <div class="comment-meta">
+                            <a href="{% url 'profile' username=comment.author.username %}" class="comment-author">{{ comment.author.username }}</a>
+                            <span class="post-meta" title="{{ comment.created_at|date:'F j, Y g:i A' }}">{{ comment.created_at|timesince }} ago</span>
+                        </div>
+                        <p class="comment-text" data-comment-content>{{ comment.content|linebreaksbr }}</p>
+                        {% if comment.author == request.user %}
+                        <button type="button" class="link-btn link-btn--danger" data-delete-comment="{% url 'comment_delete' comment.pk %}">
+                            Delete
+                        </button>
+                        {% endif %}
+                    </div>
+                </li>
+                {% empty %}
+                <li class="comment-empty" data-comment-empty>No comments yet. Be the first to say something!</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+</div>
+{% endblock %}

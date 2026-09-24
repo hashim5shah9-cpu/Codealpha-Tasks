@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login – SocialMedia{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card card">
+        <div class="auth-brand">Social<span>Media</span></div>
+        <p class="auth-tagline">Log in to see what your friends are sharing.</p>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+            </div>
+            <button type="submit" class="btn btn--primary btn--block">Log in</button>
+        </form>
+
+        <p class="auth-alt">Don't have an account? <a href="{% url 'register' %}">Sign up</a></p>
+    </div>
+</div>
+{% endblock %}

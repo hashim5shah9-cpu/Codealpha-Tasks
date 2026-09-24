@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }} – SocialMedia{% endblock %}
+
+{% block content %}
+<section class="profile">
+    <div class="profile-main">
+        <div class="profile-avatar-wrap">
+            <span class="ring ring--xl">
+                {% if profile.avatar %}
+                    <img class="avatar avatar--xl" src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}">
+                {% else %}
+                    <span class="avatar avatar--xl avatar--placeholder">{{ profile_user.username|first|upper }}</span>
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="profile-info">
+            <h1 class="profile-name">{{ profile_user.username }}</h1>
+            {% if profile_user.first_name %}
+                <p class="profile-realname">{{ profile_user.first_name }} {{ profile_user.last_name }}</p>
+            {% endif %}
+            {% if profile.bio %}
+                <p class="profile-bio">{{ profile.bio|linebreaksbr }}</p>
+            {% elif is_own_profile %}
+                <p class="profile-bio muted">Add a bio to tell people about yourself.</p>
+            {% endif %}
+            <p class="profile-joined muted">
+                Joined {{ profile_user.date_joined|date:'F Y' }}
+            </p>
+        </div>
+
+        <div class="profile-actions">
+            {% if is_own_profile %}
+                <a href="{% url 'settings' %}" class="btn btn--ghost">Edit profile</a>
+            {% else %}
+                <form method="post" action="{% url 'follow_toggle' profile_user.username %}" class="follow-form" data-follow-form>
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="btn btn--{% if is_following %}outline{% else %}primary{% endif %}"
+                            data-follow-btn>
+                        {% if is_following %}Following{% else %}Follow{% endif %}
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-stats">
+        <a href="{% url 'followers' profile_user.username %}" class="profile-stat">
+            <strong data-followers-count>{{ followers_count }}</strong>
+            <span>Followers</span>
+        </a>
+        <a href="{% url 'following' profile_user.username %}" class="profile-stat">
+            <strong>{{ following_count }}</strong>
+            <span>Following</span>
+        </a>
+        <div class="profile-stat">
+            <strong>{{ posts_count }}</strong>
+            <span>Posts</span>
+        </div>
+    </div>
+</section>
+
+<div class="layout layout--profile">
+    <div class="feed-column">
+        <h2 class="section-subtitle">Posts</h2>
+        {% if posts %}
+        <div class="post-grid">
+            {% for post in posts %}
+            <a class="grid-tile" href="{% url 'post_detail' post.pk %}">
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="">
+                {% else %}
+                    <span class="grid-tile-text">{{ post.content|truncatechars:90 }}</span>
+                {% endif %}
+                <span class="grid-tile-meta">♥ {{ post.like_count|default:post.likes_count }}</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+                <div class="empty-state card">
+                    <div class="empty-icon">✍️</div>
+                    <h3>No posts yet</h3>
+                    {% if is_own_profile %}
+                        <p>Share your first post now!</p>
+                        <a href="{% url 'feed' %}" class="btn btn--primary">Go to Feed</a>
+                    {% else %}
+                        <p>{{ profile_user.username }} hasn't posted anything yet.</p>
+                    {% endif %}
+                </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

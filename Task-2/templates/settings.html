@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Settings – SocialMedia{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <h1>Profile settings</h1>
+    <p class="page-sub">Update your personal information, bio and avatar.</p>
+</header>
+
+<div class="layout layout--settings">
+    <div class="feed-column">
+        <form method="post" enctype="multipart/form-data" class="settings-form card">
+            {% csrf_token %}
+
+            <fieldset>
+                <legend>Personal info</legend>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ user_form.first_name.id_for_label }}">First name</label>
+                        {{ user_form.first_name }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ user_form.last_name.id_for_label }}">Last name</label>
+                        {{ user_form.last_name }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ user_form.email.id_for_label }}">Email</label>
+                    {{ user_form.email }}
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Your profile</legend>
+                <div class="form-group">
+                    <label for="{{ profile_form.bio.id_for_label }}">Bio</label>
+                    {{ profile_form.bio }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ profile_form.avatar.id_for_label }}">Avatar</label>
+                    <div class="avatar-input-row">
+                        {% if request.user.profile.avatar %}
+                            <img class="avatar avatar--lg" src="{{ request.user.profile.avatar.url }}" alt="Current avatar">
+                        {% else %}
+                            <span class="avatar avatar--lg avatar--placeholder">{{ request.user.username|first|upper }}</span>
+                        {% endif %}
+                        {{ profile_form.avatar }}
+                    </div>
+                </div>
+            </fieldset>
+
+            {% if user_form.errors or profile_form.errors %}
+            <div class="form-errors">
+                {% for field_errors in user_form.errors.values %}{% for e in field_errors %}<p>{{ e }}</p>{% endfor %}{% endfor %}
+                {% for field_errors in profile_form.errors.values %}{% for e in field_errors %}<p>{{ e }}</p>{% endfor %}{% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn--primary">Save changes</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

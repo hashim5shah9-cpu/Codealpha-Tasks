@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Register – SocialMedia{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card card">
+        <div class="auth-brand">Social<span>Media</span></div>
+        <p class="auth-tagline">Join the community and start sharing.</p>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="form-errors">
+                    {% for field, errors in form.errors.items %}
+                        {% for e in errors %}<p>{{ e }}</p>{% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">Password</label>
+                {{ form.password1 }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+                {{ form.password2 }}
+            </div>
+            <p class="auth-hint">Use at least 8 characters with a mix of letters and numbers.</p>
+            <button type="submit" class="btn btn--primary btn--block">Create account</button>
+        </form>
+
+        <p class="auth-alt">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+    </div>
+</div>
+{% endblock %}

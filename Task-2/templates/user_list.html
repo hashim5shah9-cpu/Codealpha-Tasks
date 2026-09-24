@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }}'s {{ list_title }} – SocialMedia{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <a href="{% url 'profile' username=profile_user.username %}" class="btn btn--ghost">← Back</a>
+    <h1>
+        <a href="{% url 'profile' username=profile_user.username %}" class="page-header-user">{{ profile_user.username }}</a>'s {{ list_title|lower }}
+    </h1>
+</header>
+
+<div class="layout layout--list">
+    <div class="feed-column">
+        {% if items %}
+            <ul class="user-card-list">
+                {% for u in items %}
+                <li class="user-card card">
+                    <a href="{% url 'profile' username=u.username %}" class="user-card-main">
+                        {% if u.profile.avatar %}
+                            <img class="avatar avatar--md" src="{{ u.profile.avatar.url }}" alt="{{ u.username }}">
+                        {% else %}
+                            <span class="avatar avatar--md avatar--placeholder">{{ u.username|first|upper }}</span>
+                        {% endif %}
+                        <div>
+                            <strong class="user-card-name">{{ u.username }}</strong>
+                            {% if u.profile.bio %}
+                                <p class="user-card-bio">{{ u.profile.bio|truncatechars:80 }}</p>
+                            {% else %}
+                                <p class="user-card-bio muted">No bio yet.</p>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% if u != request.user %}
+                    <form method="post" action="{% url 'follow_toggle' u.username %}" class="follow-form" data-follow-form>
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="btn btn--small btn--{% if u.is_followed %}outline{% else %}primary{% endif %}"
+                                data-follow-btn>
+                            {% if u.is_followed %}Following{% else %}Follow{% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-state card">
+                <div class="empty-icon">👥</div>
+                <h3>No users here</h3>
+                {% if list_title == 'Followers' %}
+                    <p>{{ profile_user.username }} has no followers yet.</p>
+                {% else %}
+                    <p>{{ profile_user.username }} isn't following anyone yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
